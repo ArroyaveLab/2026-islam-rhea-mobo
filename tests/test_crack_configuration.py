@@ -23,15 +23,22 @@ def test_crack_configuration_matches_manuscript(source: str) -> None:
     assert len(assignments) == 1
     builder = MagicMock()
     methods = (
-        "select_database_and_elements", "without_default_phases", "select_phase",
-        "get_system", "with_property_model_calculation", "set_temperature",
-        "set_composition_unit", "set_argument", "set_composition",
+        "select_database_and_elements",
+        "without_default_phases",
+        "select_phase",
+        "get_system",
+        "with_property_model_calculation",
+        "set_temperature",
+        "set_composition_unit",
+        "set_argument",
+        "set_composition",
     )
     for method in methods:
         getattr(builder, method).return_value = builder
     elements = ["Mo", "Nb", "Ta", "W", "Co", "Hf"]
     namespace = {
-        "session": builder, "active_el": elements,
+        "session": builder,
+        "active_el": elements,
         "CompositionUnit": SimpleNamespace(MOLE_FRACTION="mole_fraction"),
         "x": torch.tensor([[0.2, 0.2, 0.2, 0.2, 0.1, 0.1]]),
     }
