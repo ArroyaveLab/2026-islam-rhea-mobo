@@ -1,5 +1,5 @@
 # License-free optimization example; core versions match uv.lock.
-torch==2.13.0
+torch==2.14.1
 botorch==0.18.1
 gpytorch==1.15.2
 linear-operator==0.6.1
