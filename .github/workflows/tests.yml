@@ -27,7 +27,5 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-extras
 
-      - name: Run prek
-        uses: j178/prek-action@v3.1.0
-        with:
-          prek-version: '0.3.10'
+      - name: Run tests
+        run: uv run pytest tests/ -v
