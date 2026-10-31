@@ -1,6 +1,6 @@
 """Standalone monolithic reference implementation (see src/rhea_mobo for the modular version).
 
-Requires tc_python and materialsframework[matgl,sqsgen] installed manually; not part of the
+Requires tc_python and materialsframework[orb,sqsgen] installed manually; not part of the
 installable rhea-mobo package, so run it directly with `uv run python scripts/bo_script_full.py`.
 """
 
@@ -22,6 +22,7 @@ from botorch.utils.multi_objective.hypervolume import Hypervolume
 from botorch.utils.multi_objective.pareto import is_non_dominated
 from gpytorch.mlls import ExactMarginalLogLikelihood
 from materialsframework.analysis import CubicElasticConstantsAnalyzer
+from materialsframework.calculators import ORBCalculator
 from materialsframework.tools import SqsGenerator
 from pymatgen.core import Composition
 from sklearn.neighbors import KernelDensity
@@ -46,6 +47,9 @@ elements = ["Mo", "Nb", "Ta", "W", "Co", "Hf"]
 # Historical identifier retained for compatibility; these are not monetary costs.
 # See README.md, Supply-risk weighting, for provenance and interpretation.
 ELEMENT_COST = torch.tensor([6.65, 4.92, 10.94, 10.53, 3.99, 5.95], dtype=torch.double)
+
+sqs_generator = SqsGenerator()
+elastic_analyzer = CubicElasticConstantsAnalyzer(calculator=ORBCalculator(model="orb-v2"))
 
 
 class CostAwareEHVI(AcquisitionFunction):
@@ -297,9 +301,6 @@ def objective(x: torch.Tensor) -> torch.Tensor:
 
     try:
         # --- Objective 5: Young's Modulus ---
-        sqs_generator = SqsGenerator()
-        elastic_analyzer = CubicElasticConstantsAnalyzer()
-
         alloy = Composition({element: x[0, i].item() for i, element in enumerate(("Mo", "Nb", "Ta", "W", "Co", "Hf"))})
         sqs_res = sqs_generator.generate(composition=alloy, crystal_structure="bcc", supercell_size=(10, 10, 10))
         bcc_MoNbTaWCoHf = sqs_res["structure"]
@@ -437,9 +438,6 @@ mask_positive = (xs > 0).all(dim=1)
 
 mask_total = mask_sum & mask_equal & mask_positive
 xs_feasible = xs[mask_total]
-
-sqs_generator = SqsGenerator()
-elastic_analyzer = CubicElasticConstantsAnalyzer()
 
 
 def run_optimization(
