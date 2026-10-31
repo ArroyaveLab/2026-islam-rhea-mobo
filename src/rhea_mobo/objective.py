@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import torch
 from materialsframework.analysis import CubicElasticConstantsAnalyzer
+from materialsframework.calculators import ORBCalculator
 from materialsframework.tools import SqsGenerator
 from pymatgen.core import Composition
 from sklearn.neighbors import KernelDensity
@@ -14,6 +15,9 @@ from tc_python import *
 from .config import num_obj
 
 warnings.simplefilter("ignore")
+
+sqs_generator = SqsGenerator()
+elastic_analyzer = CubicElasticConstantsAnalyzer(calculator=ORBCalculator(model="orb-v2"))
 
 
 def objective(x: torch.Tensor) -> torch.Tensor:
@@ -240,9 +244,6 @@ def objective(x: torch.Tensor) -> torch.Tensor:
 
     try:
         # --- Objective 5: Young's Modulus ---
-        sqs_generator = SqsGenerator()
-        elastic_analyzer = CubicElasticConstantsAnalyzer()
-
         alloy = Composition({element: x[0, i].item() for i, element in enumerate(("Mo", "Nb", "Ta", "W", "Co", "Hf"))})
         sqs_res = sqs_generator.generate(composition=alloy, crystal_structure="bcc", supercell_size=(10, 10, 10))
         bcc_MoNbTaWCoHf = sqs_res["structure"]
