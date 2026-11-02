@@ -28,7 +28,7 @@ dependencies = [
     "seaborn>=0.13",
     "tqdm>=4.66",
     "pymatgen>=2024.1",
-    "materialsframework[matgl,sqsgen]>=1.0.0",
+    "materialsframework[orb,sqsgen]>=1.0.0",
 ]
 
 [build-system]
